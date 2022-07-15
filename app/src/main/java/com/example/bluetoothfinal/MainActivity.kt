@@ -38,7 +38,7 @@ var connectedThread: MainActivity.ConnectedThread? = null
 var createConnectThread: MainActivity.CreateConnectThread? = null
 
 private val CONNECTING_STATUS = 1 // used in bluetooth handler to identify message status
-private val MESSAGE_READ = 2 // used in bluetooth handler to identify message update
+public val MESSAGE_READ = 2 // used in bluetooth handler to identify message update
 
 
 class MainActivity : AppCompatActivity() {
@@ -205,6 +205,8 @@ class MainActivity : AppCompatActivity() {
                         if (mHandler == null) return true
                         mHandler!!.removeCallbacks(mAction)
                         mHandler = null
+                        newNumber -= 3
+                        textViewInfo.text = "$newNumber Items"
                     }
                 }
                 return false
