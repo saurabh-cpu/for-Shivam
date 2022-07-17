@@ -94,6 +94,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginTop="20dp"
         android:id="@+id/machineStatusTextView"
+        android:background="@color/white4"
         />
 
     <RadioButton

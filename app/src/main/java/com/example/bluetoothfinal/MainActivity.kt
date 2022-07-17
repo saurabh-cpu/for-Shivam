@@ -18,8 +18,21 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import com.example.bluetoothfinal.Helpers.Companion.BOTH_MOTORS_HOMING_COMPLETE
+import com.example.bluetoothfinal.Helpers.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
 import com.example.bluetoothfinal.Helpers.Companion.CONNECTING_STATUS
+import com.example.bluetoothfinal.Helpers.Companion.LOAD_MOTOR_LIMIT_SWITCH_PRESS1
+import com.example.bluetoothfinal.Helpers.Companion.LOAD_MOTOR_LIMIT_SWITCH_PRESS2
+import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_COMPLETE
+import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_START
+import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_CYCLE_START_MANUAL_POSITIONS
+import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_PAUSED
+import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESTART
+import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESUME
 import com.example.bluetoothfinal.Helpers.Companion.MESSAGE_READ
+import com.example.bluetoothfinal.Helpers.Companion.PREPARE_MACHINE
+import com.example.bluetoothfinal.Helpers.Companion.TRAVEL_MOTOR_LIMIT_SWITCH_PRESS1
+import com.example.bluetoothfinal.Helpers.Companion.TRAVEL_MOTOR_LIMIT_SWITCH_PRESS2
 import com.example.bluetoothfinal.R.color.*
 import com.google.android.material.button.MaterialButton
 import java.util.*
@@ -44,14 +57,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var buttonConnect:Button
     lateinit var toolbar: Toolbar
     lateinit var progressBar: ProgressBar
-    lateinit var textViewInfo:TextView
     lateinit var buttonToggle: Button
-    lateinit var imageView: ImageView
-    lateinit var buttonPressed: Button
+
 
     lateinit var homingButton: MaterialButton
     lateinit var programmingButton: MaterialButton
     lateinit var massageButton: MaterialButton
+    lateinit var machineStatusTextView: TextView
 
 
 
@@ -63,11 +75,7 @@ class MainActivity : AppCompatActivity() {
         buttonConnect = findViewById(R.id.buttonConnect)
         toolbar = findViewById(R.id.toolbar)
         progressBar = findViewById(R.id.progressBar)
-//        textViewInfo = findViewById(R.id.textViewInfo)
-//        buttonToggle = findViewById(R.id.buttonToggle)
-//        imageView = findViewById(R.id.imageView)
-//        buttonPressed = findViewById(R.id.buttonPressed)
-
+        machineStatusTextView = findViewById(R.id.machineStatusTextView)
         homingButton = findViewById(R.id.startHomingButton)
         programmingButton = findViewById(R.id.startProgrammingButton)
         massageButton = findViewById(R.id.startMassageButton)
@@ -76,17 +84,14 @@ class MainActivity : AppCompatActivity() {
 
 
         progressBar.visibility = View.GONE
-//        buttonToggle.isEnabled = false
-//        imageView.setBackgroundColor(ContextCompat.getColor(this,purple_200))
 
-        // If a bluetooth device has been selected from SelectDeviceActivity
-        val deviceName = intent.getStringExtra("deviceName")
+
+        val deviceName = intent.getStringExtra("deviceName")                    // If a bluetooth device has been selected from SelectDeviceActivity
 
         if (deviceName != null) {
-            // Get the device address to make BT Connection
-            deviceAddress = intent.getStringExtra("deviceAddress")
-            // Show progress and connection status
-            toolbar.subtitle = "Connecting to $deviceName..."
+
+            deviceAddress = intent.getStringExtra("deviceAddress")                // Get the device address to make BT Connection
+            toolbar.subtitle = "Connecting to $deviceName..."                           // Show progress and connection status
             progressBar.visibility = View.VISIBLE
             buttonConnect.isEnabled = false
 
@@ -100,10 +105,6 @@ class MainActivity : AppCompatActivity() {
             createConnectThread!!.start()
         }
 
-
-        /*
-        Second most important piece of Code. GUI Handler
-         */
 
         handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
@@ -122,20 +123,33 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     MESSAGE_READ -> {
-                        val arduinoMsg: String = msg.obj.toString() // Read message from Arduino
+                        val arduinoMsg = msg.obj.toString() // Read message from Arduino
                         when (arduinoMsg.lowercase(Locale.getDefault())) {
-                            "led is turned on" -> {
-                                imageView.setBackgroundColor(ContextCompat.getColor(this@MainActivity,purple_200))
-                                textViewInfo.text = "Arduino Message : $arduinoMsg"
+
+                            MASSAGE_PAUSED.toString() -> {
+                                machineStatusTextView.text = "Massage Paused"
                             }
-                            "led is turned off" -> {
-                                imageView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, teal_700))
-                                textViewInfo.text = "Arduino Message : $arduinoMsg"
+                            MASSAGE_RESTART.toString() -> {
+                                machineStatusTextView.text = "Massage Restart"
                             }
-                            else -> {
-                                imageView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, teal_200))
-                                textViewInfo.text = "Arduino Message : $arduinoMsg"
+                            MASSAGE_RESUME.toString() -> {
+                                machineStatusTextView.text = "Massage resume"
                             }
+                            MANUAL_PROGRAMMING_MODE_START.toString() -> {
+                                machineStatusTextView.text = "Manual Programming mode started"
+                            }
+                            MANUAL_PROGRAMMING_MODE_COMPLETE.toString() -> {
+                                machineStatusTextView.text = "Manual Programming complete. Machine ready for massage"
+                                massageButton.isEnabled = true
+                            }
+                            BOTH_MOTORS_ORIGIN_COMPLETE.toString() -> {
+                                machineStatusTextView.text = "Machine ready for programming"
+                                homingButton.isEnabled = true
+                            }
+                            MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString() -> {
+                                machineStatusTextView.text = "Massage started"
+                            }
+
                         }
                     }
                 }
@@ -148,9 +162,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        homingButton.setOnClickListener {
+            machineStatusTextView.text = "Homing: Homing cycle started"
+            connectedThread!!.write(PREPARE_MACHINE.toString())
+            val intent = Intent(this@MainActivity, ProgrammingScreen::class.java)
+            startActivity(intent)
+        }
 
+        massageButton.setOnClickListener {
+            connectedThread!!.write(MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString())
+        }
+
+
+
+
+/*
         buttonToggle.setOnClickListener {
-            var cmdText:String = ""
+            var cmdText = ""
             when (buttonToggle.text.toString().lowercase(Locale.getDefault())) {
                 "turn on" -> {
                     buttonToggle.text = "Turn Off"
@@ -163,36 +191,10 @@ class MainActivity : AppCompatActivity() {
                     cmdText = "2/"
                 }
             }
-            // Send command to Arduino board
-            connectedThread?.write(cmdText)
+
+            connectedThread?.write(cmdText)     // Send command to Arduino board
         }
 
-        val number = 0
-//        buttonPressed.setOnLongClickListener {
-//            val handler = Handler(Looper.myLooper()!!)
-//            val runnable : Runnable = object : Runnable {
-//
-//                override fun run() {
-//                    handler.removeCallbacks(this)
-//                    if (buttonPressed.isPressed) {
-//                        val newNumber= number + 1
-//                        textViewInfo.text = "$newNumber Items"
-//                        handler.postDelayed(this, 100)
-//                    }
-//                }
-//            }
-//            handler.postDelayed(runnable,0)
-//            true
-//        }
-
-
-
-//        buttonPressed.setOnTouchListener(RepeatListener(400, 100, object : View.OnClickListener {
-//            override fun onClick(view: View?) {
-//                // the code to execute repeatedly
-//
-//            }
-//        }))
 
 
         buttonPressed.setOnTouchListener(object : OnTouchListener {
@@ -220,13 +222,14 @@ class MainActivity : AppCompatActivity() {
 
             var mAction: Runnable = object : Runnable {
                 override fun run() {
+                //  This part will run repeatedly
                     println("Performing action...")
                     mHandler!!.postDelayed(this, 500)
                 }
             }
         })
 
-
+*/
 
 
 
