@@ -8,37 +8,34 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.view.MotionEvent
+
 import android.view.View
-import android.view.View.OnTouchListener
+
 import android.widget.Button
-import android.widget.ImageView
+
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
-import com.example.bluetoothfinal.Helpers.Companion.BOTH_MOTORS_HOMING_COMPLETE
+
 import com.example.bluetoothfinal.Helpers.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
 import com.example.bluetoothfinal.Helpers.Companion.CONNECTING_STATUS
-import com.example.bluetoothfinal.Helpers.Companion.LOAD_MOTOR_LIMIT_SWITCH_PRESS1
-import com.example.bluetoothfinal.Helpers.Companion.LOAD_MOTOR_LIMIT_SWITCH_PRESS2
+
 import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_COMPLETE
 import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_START
+import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_COMPLETE
 import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_CYCLE_START_MANUAL_POSITIONS
 import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_PAUSED
 import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESTART
 import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESUME
 import com.example.bluetoothfinal.Helpers.Companion.MESSAGE_READ
 import com.example.bluetoothfinal.Helpers.Companion.PREPARE_MACHINE
-import com.example.bluetoothfinal.Helpers.Companion.TRAVEL_MOTOR_LIMIT_SWITCH_PRESS1
-import com.example.bluetoothfinal.Helpers.Companion.TRAVEL_MOTOR_LIMIT_SWITCH_PRESS2
-import com.example.bluetoothfinal.R.color.*
+
 import com.google.android.material.button.MaterialButton
 import java.util.*
 
 
-var newNumber = 0
+
 
 var mmSocket: BluetoothSocket? = null
 var handler: Handler? = null
@@ -109,6 +106,7 @@ class MainActivity : AppCompatActivity() {
         handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
+
                     CONNECTING_STATUS -> when (msg.arg1) {
                         1 -> {
                             toolbar.subtitle = "Connected to $deviceName"
@@ -122,6 +120,7 @@ class MainActivity : AppCompatActivity() {
                             buttonConnect.isEnabled = true
                         }
                     }
+
                     MESSAGE_READ -> {
                         val arduinoMsg = msg.obj.toString() // Read message from Arduino
                         when (arduinoMsg.lowercase(Locale.getDefault())) {
@@ -149,7 +148,9 @@ class MainActivity : AppCompatActivity() {
                             MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString() -> {
                                 machineStatusTextView.text = "Massage started"
                             }
-
+                            MASSAGE_COMPLETE.toString() -> {
+                                machineStatusTextView.text = "Massage started"
+                            }
                         }
                     }
                 }

@@ -18,6 +18,7 @@ class Helpers {
         const val  MASSAGE_FULL_CYCLE_START = 7
         const val  MASSAGE_FULL_CYCLE_COMPLETE = 8                          // Momentary state turns to 0 after showing a message
         const val  MANUAL_PROGRAMMING_MODE_COMPLETE = 9
+        const val  MASSAGE_COMPLETE = 10
 
 
         const val MOVE_LOAD_MOTOR_FORWARD = 11
