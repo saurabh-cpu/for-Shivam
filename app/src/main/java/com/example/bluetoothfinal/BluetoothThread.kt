@@ -5,8 +5,8 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
 import android.content.ContentValues
 import android.util.Log
-import com.example.bluetoothfinal.Helpers.Companion.CONNECTING_STATUS
-import com.example.bluetoothfinal.Helpers.Companion.MESSAGE_READ
+import com.example.bluetoothfinal.MachineState.Companion.CONNECTING_STATUS
+import com.example.bluetoothfinal.MachineState.Companion.MESSAGE_READ
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream

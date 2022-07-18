@@ -17,19 +17,16 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-
-import com.example.bluetoothfinal.Helpers.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
-import com.example.bluetoothfinal.Helpers.Companion.CONNECTING_STATUS
-
-import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_COMPLETE
-import com.example.bluetoothfinal.Helpers.Companion.MANUAL_PROGRAMMING_MODE_START
-import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_COMPLETE
-import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_CYCLE_START_MANUAL_POSITIONS
-import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_PAUSED
-import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESTART
-import com.example.bluetoothfinal.Helpers.Companion.MASSAGE_RESUME
-import com.example.bluetoothfinal.Helpers.Companion.MESSAGE_READ
-import com.example.bluetoothfinal.Helpers.Companion.PREPARE_MACHINE
+import com.example.bluetoothfinal.MachineState.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
+import com.example.bluetoothfinal.MachineState.Companion.CONNECTING_STATUS
+import com.example.bluetoothfinal.MachineState.Companion.MACHINE_ONLINE
+import com.example.bluetoothfinal.MachineState.Companion.MACHINE_READY_FOR_MASSAGE
+import com.example.bluetoothfinal.MachineState.Companion.MANUAL_PROGRAMMING_COMPLETE
+import com.example.bluetoothfinal.MachineState.Companion.MANUAL_PROGRAMMING_START
+import com.example.bluetoothfinal.MachineState.Companion.MASSAGE_COMPLETE
+import com.example.bluetoothfinal.MachineState.Companion.MASSAGE_CYCLE_START_MANUAL_POSITIONS
+import com.example.bluetoothfinal.MachineState.Companion.MESSAGE_READ
+import com.example.bluetoothfinal.MachineState.Companion.PREPARE_MACHINE
 
 import com.google.android.material.button.MaterialButton
 import java.util.*
@@ -124,32 +121,31 @@ class MainActivity : AppCompatActivity() {
                     MESSAGE_READ -> {
                         val arduinoMsg = msg.obj.toString() // Read message from Arduino
                         when (arduinoMsg.lowercase(Locale.getDefault())) {
-
-                            MASSAGE_PAUSED.toString() -> {
-                                machineStatusTextView.text = "Massage Paused"
+                            MACHINE_ONLINE.toString() -> {
+                                machineStatusTextView.text = "Machine online"
                             }
-                            MASSAGE_RESTART.toString() -> {
-                                machineStatusTextView.text = "Massage Restart"
-                            }
-                            MASSAGE_RESUME.toString() -> {
-                                machineStatusTextView.text = "Massage resume"
-                            }
-                            MANUAL_PROGRAMMING_MODE_START.toString() -> {
-                                machineStatusTextView.text = "Manual Programming mode started"
-                            }
-                            MANUAL_PROGRAMMING_MODE_COMPLETE.toString() -> {
-                                machineStatusTextView.text = "Manual Programming complete. Machine ready for massage"
-                                massageButton.isEnabled = true
+                            PREPARE_MACHINE.toString() -> {
+                                machineStatusTextView.text = "Homing cycle started"
                             }
                             BOTH_MOTORS_ORIGIN_COMPLETE.toString() -> {
                                 machineStatusTextView.text = "Machine ready for programming"
-                                homingButton.isEnabled = true
+                                programmingButton.isEnabled = true
+                            }
+                            MANUAL_PROGRAMMING_START.toString() -> {
+                                machineStatusTextView.text = "Manual Programming mode started"
+                            }
+                            MANUAL_PROGRAMMING_COMPLETE.toString() -> {
+                                machineStatusTextView.text = "Manual Programming complete. Machine ready for massage"
+                            }
+                            MACHINE_READY_FOR_MASSAGE.toString() -> {
+                                machineStatusTextView.text = "Machine ready for massage."
+                                massageButton.isEnabled = true
                             }
                             MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString() -> {
                                 machineStatusTextView.text = "Massage started"
                             }
                             MASSAGE_COMPLETE.toString() -> {
-                                machineStatusTextView.text = "Massage started"
+                                machineStatusTextView.text = "Massage complete"
                             }
                         }
                     }
@@ -172,6 +168,8 @@ class MainActivity : AppCompatActivity() {
 
         massageButton.setOnClickListener {
             connectedThread!!.write(MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString())
+            val intent = Intent(this@MainActivity, MassageScreen::class.java)
+            startActivity(intent)
         }
 
 
