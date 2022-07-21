@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.telephony.DisconnectCause
+import android.util.Log
 
 import android.view.View
 
@@ -17,6 +19,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat.startActivity
 import com.example.bluetoothfinal.MachineState.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
 import com.example.bluetoothfinal.MachineState.Companion.CONNECTING_STATUS
 import com.example.bluetoothfinal.MachineState.Companion.MACHINE_ONLINE
@@ -51,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var buttonConnect:Button
     lateinit var toolbar: Toolbar
     lateinit var progressBar: ProgressBar
-    lateinit var buttonToggle: Button
+    lateinit var buttonDisconnect: Button
 
 
     lateinit var homingButton: MaterialButton
@@ -73,19 +76,19 @@ class MainActivity : AppCompatActivity() {
         homingButton = findViewById(R.id.startHomingButton)
         programmingButton = findViewById(R.id.startProgrammingButton)
         massageButton = findViewById(R.id.startMassageButton)
-
-
-
+        buttonDisconnect = findViewById(R.id.buttonDisconnect)
 
         progressBar.visibility = View.GONE
 
 
-        val deviceName = intent.getStringExtra("deviceName")                    // If a bluetooth device has been selected from SelectDeviceActivity
-
+        val deviceName =
+            intent.getStringExtra("deviceName")                    // If a bluetooth device has been selected from SelectDeviceActivity
         if (deviceName != null) {
 
-            deviceAddress = intent.getStringExtra("deviceAddress")                // Get the device address to make BT Connection
-            toolbar.subtitle = "Connecting to $deviceName..."                           // Show progress and connection status
+            deviceAddress =
+                intent.getStringExtra("deviceAddress")                // Get the device address to make BT Connection
+            toolbar.subtitle =
+                "Connecting to $deviceName..."                           // Show progress and connection status
             progressBar.visibility = View.VISIBLE
             buttonConnect.isEnabled = false
 
@@ -108,8 +111,12 @@ class MainActivity : AppCompatActivity() {
                         1 -> {
                             toolbar.subtitle = "Connected to $deviceName"
                             progressBar.visibility = View.GONE
-                            buttonConnect.isEnabled = true
-                            buttonToggle.isEnabled = true
+                            //buttonConnect.isEnabled = false
+                            homingButton.isEnabled = true
+                            //buttonToggle.isEnabled = true
+                            buttonConnect.visibility = View.GONE
+                            buttonDisconnect.visibility = View.VISIBLE
+                            connectedThread!!.write(MACHINE_ONLINE.toString())
                         }
                         -1 -> {
                             toolbar.subtitle = "Device fails to connect"
@@ -119,60 +126,150 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     MESSAGE_READ -> {
-                        val arduinoMsg = msg.obj.toString() // Read message from Arduino
+                        val arduinoMsg = msg.obj.toString()
+                        if (arduinoMsg.contains("Machine ready for programming") ) {
+                            machineStatusTextView.text = arduinoMsg
+                            programmingButton.isEnabled = true
+                        } else {
+                            machineStatusTextView.text = arduinoMsg
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+                /*
+                        // Read message from Arduino
                         when (arduinoMsg.lowercase(Locale.getDefault())) {
-                            MACHINE_ONLINE.toString() -> {
-                                machineStatusTextView.text = "Machine online"
-                            }
-                            PREPARE_MACHINE.toString() -> {
-                                machineStatusTextView.text = "Homing cycle started"
-                            }
-                            BOTH_MOTORS_ORIGIN_COMPLETE.toString() -> {
+                        //when (arduinoMsg) {
+//                            "Machine online" -> {
+//                                machineStatusTextView.text = "Machine online"
+//                            }
+//                            "Homing cycle started" -> {
+//                                machineStatusTextView.text = "Homing cycle started"
+//                            }
+//                            "Manual programming started" -> {
+//                                machineStatusTextView.text = "Manual programming started"
+//                            }
+//                            "Massage cycle started" -> {
+//                                machineStatusTextView.text = "Massage cycle started"
+//                            }
+//
+//                            "Load motor homing started" -> {
+//                                machineStatusTextView.text = "Load motor homing started"
+//                            }
+//                            "Load motor LIMIT SWITCH pressed once" -> {
+//                                machineStatusTextView.text = "Load motor LIMIT SWITCH pressed once"
+//                            }
+//                            "Load motor homing complete" -> {
+//                                machineStatusTextView.text = "Load motor homing complete"
+//                            }
+//
+//                            "Load motor origin cycle started" -> {
+//                                machineStatusTextView.text = "Load motor origin cycle started"
+//                            }
+//                            "Load motor origin cycle complete" -> {
+//                                machineStatusTextView.text = "Load motor origin cycle complete"
+//                            }
+//                            "Travel motor homing started" -> {
+//                                machineStatusTextView.text = "Travel motor homing started"
+//                            }
+//                            "Travel motor LIMIT SWITCH pressed once" -> {
+//                                machineStatusTextView.text = "Travel motor LIMIT SWITCH pressed once"
+//                            }
+//                            "Travel motor homing cycle complete" -> {
+//                                machineStatusTextView.text = "Travel motor homing cycle complete"
+//                            }
+//                            "Travel motor origin cycle started" -> {
+//                                machineStatusTextView.text = "Travel motor origin cycle started"
+//                            }
+//                            "Travel motor origin cycle complete" -> {
+//                                machineStatusTextView.text = "Travel motor origin cycle complete"
+//                            }
+                            "Machine ready for programming" -> {
                                 machineStatusTextView.text = "Machine ready for programming"
                                 programmingButton.isEnabled = true
                             }
-                            MANUAL_PROGRAMMING_START.toString() -> {
-                                machineStatusTextView.text = "Manual Programming mode started"
-                            }
-                            MANUAL_PROGRAMMING_COMPLETE.toString() -> {
-                                machineStatusTextView.text = "Manual Programming complete. Machine ready for massage"
-                            }
-                            MACHINE_READY_FOR_MASSAGE.toString() -> {
-                                machineStatusTextView.text = "Machine ready for massage."
-                                massageButton.isEnabled = true
-                            }
-                            MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString() -> {
-                                machineStatusTextView.text = "Massage started"
-                            }
-                            MASSAGE_COMPLETE.toString() -> {
-                                machineStatusTextView.text = "Massage complete"
-                            }
+                            else -> {
+                                machineStatusTextView.text = arduinoMsg
+                                if (arduinoMsg == arduinoMsg){
+                                    Log.e("TAG", "handleMessage: whatever", )
+                                    programmingButton.isEnabled = true
+                                }
+
+
+
+
+
+
+//                            MACHINE_ONLINE.toString() -> {
+//                                machineStatusTextView.text = "Machine online"
+//                            }
+//                            PREPARE_MACHINE.toString() -> {
+//                                machineStatusTextView.text = "Homing cycle started"
+//                            }
+//                            BOTH_MOTORS_ORIGIN_COMPLETE.toString() -> {
+//                                machineStatusTextView.text = "Machine ready for programming"
+//                                programmingButton.isEnabled = true
+//                            }
+//                            MANUAL_PROGRAMMING_START.toString() -> {
+//                                machineStatusTextView.text = "Manual Programming mode started"
+//                            }
+//                            MANUAL_PROGRAMMING_COMPLETE.toString() -> {
+//                                machineStatusTextView.text = "Manual Programming complete. Machine ready for massage"
+//                            }
+//                            MACHINE_READY_FOR_MASSAGE.toString() -> {
+//                                machineStatusTextView.text = "Machine ready for massage."
+//                                massageButton.isEnabled = true
+//                            }
+//                            MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString() -> {
+//                                machineStatusTextView.text = "Massage started"
+//                            }
+//                            MASSAGE_COMPLETE.toString() -> {
+//                                machineStatusTextView.text = "Massage complete"
+//                            }
                         }
                     }
                 }
             }
         }
 
-        // Select Bluetooth Device
-        buttonConnect.setOnClickListener { // Move z to adapter list
-            val intent = Intent(this@MainActivity, SelectDeviceActivity::class.java)
-            startActivity(intent)
-        }
-
-        homingButton.setOnClickListener {
-            machineStatusTextView.text = "Homing: Homing cycle started"
-            connectedThread!!.write(PREPARE_MACHINE.toString())
-            val intent = Intent(this@MainActivity, ProgrammingScreen::class.java)
-            startActivity(intent)
-        }
-
-        massageButton.setOnClickListener {
-            connectedThread!!.write(MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString())
-            val intent = Intent(this@MainActivity, MassageScreen::class.java)
-            startActivity(intent)
-        }
+ */
 
 
+                // Select Bluetooth Device
+                buttonConnect.setOnClickListener { // Move z to adapter list
+                    val intent = Intent(this@MainActivity, SelectDeviceActivity::class.java)
+                    startActivity(intent)
+                }
+
+                buttonDisconnect.setOnClickListener {
+                    connectedThread!!.cancel()
+                    toolbar.subtitle = "Disconnected from $deviceName"
+                    buttonConnect.visibility = View.VISIBLE
+                    buttonDisconnect.visibility = View.GONE
+                }
+
+                homingButton.setOnClickListener {
+                    machineStatusTextView.text = "Homing: Homing cycle started"
+                    connectedThread!!.write(PREPARE_MACHINE.toString())
+
+                }
+
+                massageButton.setOnClickListener {
+                    connectedThread!!.write(MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString())
+                    val intent = Intent(this@MainActivity, MassageScreen::class.java)
+                    startActivity(intent)
+                }
+
+                programmingButton.setOnClickListener {
+                    machineStatusTextView.text = "Programming cycle started"
+                    connectedThread!!.write(MANUAL_PROGRAMMING_START.toString())
+                    val intent = Intent(this@MainActivity, ProgrammingScreen::class.java)
+                    startActivity(intent)
+                }
 
 
 /*
@@ -230,14 +327,6 @@ class MainActivity : AppCompatActivity() {
 
 */
 
-
-
-
-
-
+        }
     }
 
-
-
-
-}

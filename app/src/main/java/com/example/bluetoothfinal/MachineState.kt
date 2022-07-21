@@ -9,6 +9,7 @@ class MachineState {
 
         const val MACHINE_ONLINE = 100
         const val MACHINE_NOT_READY = 101
+        const val CHANGE_MASSAGE_POSITIONS = 102
 
         const val  MASSAGE_PAUSED = 0                                       // For pause resume
         const val  MASSAGE_RESUME = 1

@@ -6,6 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".ProgrammingScreen">
 
+<!-- Disable save if the coordinates of previous save are same as this one -->
+
+
+    <TextView
+        android:id="@+id/loadMotorTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="50dp"
+        android:text="Load motor"
+        android:background="@color/white3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/positionTextView" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loadMotorFwdButton"
@@ -27,15 +42,19 @@
         app:layout_constraintTop_toTopOf="@+id/loadMotorFwdButton" />
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/saveLoadPositionButton"
-        android:layout_width="wrap_content"
+    <TextView
+        android:background="@color/white3"
+        android:layout_marginEnd="20dp"
+        android:id="@+id/travelMotorTextView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Save"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:text="Travel motor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loadMotorFwdButton" />
+
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/travelMotorFwdButton"
@@ -56,8 +75,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/travelMotorFwdButton" />
 
+
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/saveTravelPositionButton"
+        android:id="@+id/saveMotorPositionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -65,16 +85,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/travelMotorFwdButton" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/saveProgramButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
-        android:text="Save Program"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 
 
@@ -89,36 +99,36 @@
         android:background="@color/white4"
         />
 
-    <TextView
-        android:id="@+id/loadMotorTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="50dp"
-        android:text="Load motor"
-        android:background="@color/white3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/positionTextView" />
 
     <TextView
-        android:background="@color/white3"
-        android:layout_marginEnd="20dp"
-        android:id="@+id/travelMotorTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="80dp"
-        android:text="Travel motor"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/saveLoadPositionButton" />
-
-    <TextView
-
+        android:id="@+id/statusReceivedLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Machine status received"
+        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toBottomOf="@+id/saveMotorPositionButton"
+        app:layout_constraintStart_toStartOf="@id/statusReceivedTextView"
+        />
+
+    <TextView
+        android:background="@color/white4"
+        android:id="@+id/statusReceivedTextView"
+        android:layout_width="match_parent"
+        android:layout_marginEnd="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/statusReceivedLabel" />
+
+
+    <TextView
+        android:id="@+id/commandSentLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:text="Command sent"
-        app:layout_constraintBottom_toTopOf="@+id/commandSentTextView"
+        app:layout_constraintTop_toBottomOf="@+id/statusReceivedTextView"
         app:layout_constraintStart_toStartOf="@id/commandSentTextView"
         />
 
@@ -130,27 +140,20 @@
         android:layout_marginStart="20dp"
         android:layout_marginBottom="30dp"
         android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/saveProgramButton" />
+        app:layout_constraintTop_toBottomOf="@+id/commandSentLabel" />
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/saveProgramButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Machine status received"
-        app:layout_constraintBottom_toTopOf="@+id/statusReceivedTextView"
-        app:layout_constraintStart_toStartOf="@id/statusReceivedTextView"
-        />
+        android:layout_marginTop="50dp"
+        android:text="Save Program"
+        app:layout_constraintTop_toBottomOf="@id/commandSentTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:background="@color/white4"
-        android:id="@+id/statusReceivedTextView"
-        android:layout_width="match_parent"
-        android:layout_marginEnd="20dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="30dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/commandSentTextView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
