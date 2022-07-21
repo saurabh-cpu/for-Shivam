@@ -81,10 +81,8 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.GONE
 
 
-        val deviceName =
-            intent.getStringExtra("deviceName")                    // If a bluetooth device has been selected from SelectDeviceActivity
+        val deviceName = intent.getStringExtra("deviceName")                    // If a bluetooth device has been selected from SelectDeviceActivity
         if (deviceName != null) {
-
             deviceAddress =
                 intent.getStringExtra("deviceAddress")                // Get the device address to make BT Connection
             toolbar.subtitle =
@@ -102,11 +100,21 @@ class MainActivity : AppCompatActivity() {
             createConnectThread!!.start()
         }
 
+        val machineReadyStatus = intent.getStringExtra("machineState")
+        if (machineReadyStatus != null){
+            toolbar.subtitle = "Connected to $deviceName"
+            progressBar.visibility = View.GONE
+            homingButton.isEnabled = true
+            programmingButton.isEnabled = true
+            massageButton.isEnabled = true
+            buttonConnect.visibility = View.GONE
+            buttonDisconnect.visibility = View.VISIBLE
+        }
+
 
         handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
-
                     CONNECTING_STATUS -> when (msg.arg1) {
                         1 -> {
                             toolbar.subtitle = "Connected to $deviceName"
@@ -267,8 +275,7 @@ class MainActivity : AppCompatActivity() {
                 programmingButton.setOnClickListener {
                     machineStatusTextView.text = "Programming cycle started"
                     connectedThread!!.write(MANUAL_PROGRAMMING_START.toString())
-                    val intent = Intent(this@MainActivity, ProgrammingScreen::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this@MainActivity, ProgrammingScreen::class.java))
                 }
 
 

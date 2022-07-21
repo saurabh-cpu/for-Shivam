@@ -26,7 +26,22 @@ class ProgrammingScreen : AppCompatActivity() {
                 when (msg.what) {
                     MachineState.MESSAGE_READ -> {
                         val arduinoMsg: String = msg.obj.toString()                 // Read message from Arduino
-                        when (arduinoMsg.lowercase(Locale.getDefault())) {
+                        binding.statusReceivedTextView.text = arduinoMsg
+
+                        if (arduinoMsg.contains("Current Travel motor position value ") ) {
+                            binding.travelMotorTextView.text = arduinoMsg
+                        } else if (arduinoMsg.contains("Current Load motor position value ") ) {
+                            binding.loadMotorTextView.text = arduinoMsg
+                        } else if (arduinoMsg.contains("Machine ready for massage")){
+                                binding.loadMotorTextView.text = arduinoMsg
+                                val intent =  Intent(this@ProgrammingScreen, MainActivity::class.java)
+                                intent.putExtra("machineState", "Machine ready for massage")
+                                startActivity(intent)
+                                finish()
+                            }
+
+
+                        /*when (arduinoMsg.lowercase(Locale.getDefault())) {
                             MachineState.TRAVEL_MOTOR_LIMIT_SWITCH_PRESS1.toString() -> {
                                 binding.statusReceivedTextView.text = "Homing: Travel motor limit switch pressed once"
                             }
@@ -48,7 +63,9 @@ class ProgrammingScreen : AppCompatActivity() {
                                 startActivity(intent)
                                 finish()
                             }
-                        }
+                        }*/
+
+
                     }
                 }
             }
@@ -79,13 +96,18 @@ class ProgrammingScreen : AppCompatActivity() {
             true
         }
 
-        binding.saveLoadPositionButton.setOnClickListener {
-            connectedThread?.write(MachineState.SAVE_LOAD_MOTOR_POSITION.toString())
+        binding.saveMotorPositionButton.setOnClickListener {
+            connectedThread?.write(MachineState.SAVE_MOTOR_POSITIONS.toString())
+            binding.commandSentTextView.text = "Saving motor positions"
         }
 
-        binding.saveTravelPositionButton.setOnClickListener {
-            connectedThread?.write(MachineState.SAVE_TRAVEL_MOTOR_POSITION.toString())
+        binding.saveProgramButton.setOnClickListener {
+            connectedThread?.write(MachineState.MANUAL_PROGRAMMING_COMPLETE.toString())
+            binding.commandSentTextView.text = "Finishing program"
+
         }
+
+
 
     }
 
