@@ -79,5 +79,11 @@ class MachineState {
     // machine ready states
         const val  MACHINE_READY_FOR_MASSAGE = 80
 
+    // Machine limits
+        const val TRAVEL_UPPER_LIMIT = 200
+        const val TRAVEL_LOWER_LIMIT = 201
+        const val LOAD_UPPER_LIMIT = 202
+        const val LOAD_LOWER_LIMIT = 203
+
     }
 }

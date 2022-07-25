@@ -111,6 +111,8 @@ class MainActivity : AppCompatActivity() {
             buttonDisconnect.visibility = View.VISIBLE
         }
 
+        //val positionData = intent.getSerializableExtra("positionData")
+
 
         handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {

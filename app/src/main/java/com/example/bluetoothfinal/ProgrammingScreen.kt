@@ -8,17 +8,24 @@ import android.os.Looper
 import android.os.Message
 import android.view.MotionEvent
 import com.example.bluetoothfinal.databinding.ActivityProgrammingScreenBinding
+import java.io.Serializable
 import java.util.*
 
+lateinit var positionData: MutableList<MotorData>
 
 class ProgrammingScreen : AppCompatActivity() {
 
     private lateinit var binding: ActivityProgrammingScreenBinding
+    private lateinit var loadPositionData: MutableList<Int>
+    private lateinit var travelPositionData: MutableList<Int>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProgrammingScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        loadPositionData = mutableListOf()
+        travelPositionData = mutableListOf()
 
 
         handler = object : Handler(Looper.getMainLooper()) {
@@ -27,18 +34,31 @@ class ProgrammingScreen : AppCompatActivity() {
                     MachineState.MESSAGE_READ -> {
                         val arduinoMsg: String = msg.obj.toString()                 // Read message from Arduino
                         binding.statusReceivedTextView.text = arduinoMsg
-
                         if (arduinoMsg.contains("Current Travel motor position value ") ) {
                             binding.travelMotorTextView.text = arduinoMsg
+                            loadPositionData.add(arduinoMsg.filter { it.isDigit() }.toInt())
                         } else if (arduinoMsg.contains("Current Load motor position value ") ) {
                             binding.loadMotorTextView.text = arduinoMsg
+                            travelPositionData.add(arduinoMsg.filter { it.isDigit() }.toInt())
                         } else if (arduinoMsg.contains("Machine ready for massage")){
-                                binding.loadMotorTextView.text = arduinoMsg
-                                val intent =  Intent(this@ProgrammingScreen, MainActivity::class.java)
-                                intent.putExtra("machineState", "Machine ready for massage")
-                                startActivity(intent)
-                                finish()
+                            binding.loadMotorTextView.text = arduinoMsg
+                            for ( i in 0 until travelPositionData.size-1) {
+                                positionData.add(MotorData(loadPositionData[i],travelPositionData[i]))
+
                             }
+                            val intent =  Intent(this@ProgrammingScreen, MainActivity::class.java)
+                            intent.putExtra("machineState", "Machine ready for massage")
+                            intent.putExtra("positionData",positionData as Serializable)
+                            startActivity(intent)
+                            finish()
+                        } else if (arduinoMsg.contains("Travel limit switch pressed")) {
+                            when (binding.commandSentTextView.text) {
+                                else -> enableButtons()
+                            }
+                            binding.loadMotorTextView.text = arduinoMsg
+                        } else if (arduinoMsg.contains("Load limit switch pressed") ) {
+                            binding.loadMotorTextView.text = arduinoMsg
+                        }
 
 
                         /*when (arduinoMsg.lowercase(Locale.getDefault())) {
@@ -122,6 +142,13 @@ class ProgrammingScreen : AppCompatActivity() {
                 binding.commandSentTextView.text = ""
             }
         }
+    }
+
+    private fun enableButtons() {
+        binding.loadMotorFwdButton.isEnabled = true
+        binding.loadMotorBwdButton.isEnabled = true
+        binding.travelMotorFwdButton.isEnabled = true
+        binding.travelMotorBwdButton.isEnabled = true
     }
 
 }
