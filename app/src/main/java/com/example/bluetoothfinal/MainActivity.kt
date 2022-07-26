@@ -1,15 +1,16 @@
 package com.example.bluetoothfinal
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
+
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.telephony.DisconnectCause
-import android.util.Log
+
 
 import android.view.View
 
@@ -19,27 +20,25 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.startActivity
-import com.example.bluetoothfinal.MachineState.Companion.BOTH_MOTORS_ORIGIN_COMPLETE
+
 import com.example.bluetoothfinal.MachineState.Companion.CONNECTING_STATUS
 import com.example.bluetoothfinal.MachineState.Companion.MACHINE_ONLINE
-import com.example.bluetoothfinal.MachineState.Companion.MACHINE_READY_FOR_MASSAGE
-import com.example.bluetoothfinal.MachineState.Companion.MANUAL_PROGRAMMING_COMPLETE
+
 import com.example.bluetoothfinal.MachineState.Companion.MANUAL_PROGRAMMING_START
-import com.example.bluetoothfinal.MachineState.Companion.MASSAGE_COMPLETE
+
 import com.example.bluetoothfinal.MachineState.Companion.MASSAGE_CYCLE_START_MANUAL_POSITIONS
 import com.example.bluetoothfinal.MachineState.Companion.MESSAGE_READ
 import com.example.bluetoothfinal.MachineState.Companion.PREPARE_MACHINE
 
 import com.google.android.material.button.MaterialButton
-import java.util.*
+
 
 
 
 
 var mmSocket: BluetoothSocket? = null
 var handler: Handler? = null
-private val deviceName: String? = null
+//private val deviceName: String? = null
 private var deviceAddress: String? = null
 
 var connectedThread:ConnectedThread? = null
@@ -95,7 +94,10 @@ class MainActivity : AppCompatActivity() {
             the code will call a new thread to create a bluetooth connection to the
             selected device (see the thread code below)
              */
-            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+            val bluetoothManager = baseContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val bluetoothAdapter = bluetoothManager.adapter
+            //val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+
             createConnectThread = CreateConnectThread(bluetoothAdapter, deviceAddress)
             createConnectThread!!.start()
         }
@@ -121,9 +123,7 @@ class MainActivity : AppCompatActivity() {
                         1 -> {
                             toolbar.subtitle = "Connected to $deviceName"
                             progressBar.visibility = View.GONE
-                            //buttonConnect.isEnabled = false
                             homingButton.isEnabled = true
-                            //buttonToggle.isEnabled = true
                             buttonConnect.visibility = View.GONE
                             buttonDisconnect.visibility = View.VISIBLE
                             connectedThread!!.write(MACHINE_ONLINE.toString())
@@ -263,20 +263,20 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 homingButton.setOnClickListener {
-                    machineStatusTextView.text = "Homing: Homing cycle started"
-                    connectedThread!!.write(PREPARE_MACHINE.toString())
+                    machineStatusTextView.text = getString(R.string.homing_started)
+                    connectedThread!!.write("$PREPARE_MACHINE/")
 
                 }
 
                 massageButton.setOnClickListener {
-                    connectedThread!!.write(MASSAGE_CYCLE_START_MANUAL_POSITIONS.toString())
+                    connectedThread!!.write("$MASSAGE_CYCLE_START_MANUAL_POSITIONS/")
                     val intent = Intent(this@MainActivity, MassageScreen::class.java)
                     startActivity(intent)
                 }
 
                 programmingButton.setOnClickListener {
-                    machineStatusTextView.text = "Programming cycle started"
-                    connectedThread!!.write(MANUAL_PROGRAMMING_START.toString())
+                    machineStatusTextView.text = getString(R.string.programming_started)
+                    connectedThread!!.write("$MANUAL_PROGRAMMING_START/")
                     startActivity(Intent(this@MainActivity, ProgrammingScreen::class.java))
                 }
 

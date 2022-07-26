@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RecyclerAdapter(private val mList: List<MotorData>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+class RecyclerAdapter(private val mList: MutableList<MotorData>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     // create new views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -16,8 +16,10 @@ class RecyclerAdapter(private val mList: List<MotorData>): RecyclerView.Adapter<
 
     // binds the list items to a view
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.loadPositionText.text = mList[position].loadMotorData.toString()
-        holder.travelPositionText.text = mList[position].loadMotorData.toString()
+        val loadPositionText =  mList[position].loadMotorData.toString() + "\nload"
+        val travelPositionText = mList[position].travelMotorData.toString() +"\ntravel"
+        holder.loadPositionText.text = loadPositionText
+        holder.travelPositionText.text = travelPositionText
     }
 
     // return the number of the items in the list
