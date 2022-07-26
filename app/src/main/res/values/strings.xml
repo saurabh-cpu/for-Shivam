@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">BluetoothFinal</string>
+    <string name="increase_load">Increase Load</string>
+    <string name="decrease_load">decrease load</string>
+    <string name="pause">Pause</string>
+    <string name="homing_started">Homing: Homing cycle started</string>
+    <string name="programming_started">Programming cycle started</string>
+    <string name="saving_motor_positions">Saving motor positions</string>
+    <string name="finishing_programming">Finishing program</string>
 </resources>
